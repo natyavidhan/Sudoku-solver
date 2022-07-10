@@ -20,6 +20,9 @@ class Game:
         self.running = True
 
         self.current = None
+        self.key_map = []
+        for i, x in enumerate(range(49, 58)):
+            self.key_map.append([x, i+1])
 
     def start_game(self):
         self.grid = [[Cell(x, y) for x in range(9)] for y in range(9)]
@@ -30,7 +33,6 @@ class Game:
                 if val != 0:
                     self.grid[y][x].block = True
                 self.grid[y][x].value = val
-                print(self.grid[y][x].__dict__)
 
     def draw_grid(self):
         for y in range(1, 9):
@@ -64,7 +66,12 @@ class Game:
             if not self.grid[y//50][x//50].block:
                 self.current = [x, y]
         if self.current:
-            pygame.draw.rect(self.screen, (255, 0, 0), (self.current[0], self.current[1], 50, 50), 3)
+            x, y = self.current
+            pygame.draw.rect(self.screen, (255, 0, 0), (x, y, 50, 50), 3)
+            keys = pygame.key.get_pressed()
+            for key, value in self.key_map:
+                if keys[int(key)]:
+                    self.grid[y//50][x//50].value = value
 
 
     def run(self):
