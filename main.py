@@ -1,4 +1,5 @@
 import pygame
+import requests
 
 pygame.font.init()
 
@@ -19,6 +20,10 @@ class Game:
 
     def start_game(self):
         self.grid = [[Cell(x, y) for x in range(9)] for y in range(9)]
+        board = requests.get("https://sugoku.herokuapp.com/board?difficulty=random").json()['board']
+        for y in range(9):
+            for x in range(9):
+                self.grid[y][x].value = board[y][x]
 
     def draw_grid(self):
         for y in range(1, 9):
@@ -43,6 +48,7 @@ class Game:
                     self.screen.blit(text, rect)
 
     def run(self):
+        self.start_game()
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -50,7 +56,6 @@ class Game:
                     
             self.screen.fill((255, 255, 255))
 
-            self.start_game()
             self.draw_grid()
             self.draw_numbers()
 
