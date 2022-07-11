@@ -1,5 +1,7 @@
 import pygame
 import requests
+import json
+import random
 
 pygame.font.init()
 
@@ -26,7 +28,10 @@ class Game:
 
     def start_game(self):
         self.grid = [[Cell(x, y) for x in range(9)] for y in range(9)]
-        board = requests.get("https://sugoku.herokuapp.com/board?difficulty=random").json()['board']
+        try:
+            board = requests.get("https://sugoku.herokuapp.com/board?difficulty=random").json()['board']
+        except:
+            board = random.choice(json.load(open("offline.json", "r")))
         for y in range(9):
             for x in range(9):
                 val = board[y][x]
