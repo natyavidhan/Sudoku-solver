@@ -30,8 +30,9 @@ class Game:
         self.grid = [[Cell(x, y) for x in range(9)] for y in range(9)]
         try:
             board = requests.get("https://sugoku.herokuapp.com/board?difficulty=random").json()['board']
+            self.solution = requests.post("https://sugoku.herokuapp.com/solve", data={"board": str(board)}, headers={'Content-Type': 'application/x-www-form-urlencoded'}).json()['solution']
         except:
-            board = random.choice(json.load(open("offline.json", "r")))
+            board, self.solution = random.choice(json.load(open("offline.json", "r")))
         for y in range(9):
             for x in range(9):
                 val = board[y][x]
@@ -61,23 +62,31 @@ class Game:
                     rect.center = (cell.x*50 + 25, cell.y*50 + 25)
                     self.screen.blit(text, rect)
     
+    def check(self):
+        for row in self.grid:
+            for cell in row:
+                x, y = cell.x, cell.y
+                if cell.value != self.solution[y][x]:
+                    pygame.draw.rect(self.screen, (255, 0, 0), (x*50, y*50, 50, 50))
+
     def play(self):
-        self.draw_grid()
-        self.draw_numbers()
         if pygame.mouse.get_pressed()[0]:
             pos = pygame.mouse.get_pos()
             x = pos[0]-pos[0]%50
             y = pos[1]-pos[1]%50
             if not self.grid[y//50][x//50].block:
                 self.current = [x, y]
+        keys = pygame.key.get_pressed()
         if self.current:
             x, y = self.current
             pygame.draw.rect(self.screen, (255, 0, 0), (x, y, 50, 50), 3)
-            keys = pygame.key.get_pressed()
             for key, value in self.key_map:
                 if keys[int(key)]:
                     self.grid[y//50][x//50].value = value
-
+        if keys[pygame.K_SPACE]:
+            self.check()
+        self.draw_grid()
+        self.draw_numbers()
 
     def run(self):
         self.start_game()
