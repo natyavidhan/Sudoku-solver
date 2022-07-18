@@ -20,11 +20,13 @@ class Game:
 
         self.clock = pygame.time.Clock()
         self.running = True
+        self.current_scene = "home"
 
         self.current = None
         self.key_map = []
         for i, x in enumerate(range(49, 58)):
             self.key_map.append([x, i+1])
+        self.home_bg = pygame.image.load("home.png")
 
     def start_game(self):
         self.grid = [[Cell(x, y) for x in range(9)] for y in range(9)]
@@ -87,6 +89,16 @@ class Game:
             self.check()
         self.draw_grid()
         self.draw_numbers()
+    
+    def home(self):
+        self.screen.blit(self.home_bg, (0, 0))
+        play_btn_rect = pygame.Rect(130, 260, 190, 60)
+        auto_rect = pygame.Rect(130, 330, 190, 60)
+        if pygame.mouse.get_pressed()[0]:
+            if play_btn_rect.collidepoint(pygame.mouse.get_pos()):
+                self.current_scene = "play"
+            if auto_rect.collidepoint(pygame.mouse.get_pos()):
+                self.current_scene = "auto"
 
     def run(self):
         self.start_game()
@@ -97,7 +109,10 @@ class Game:
                     
             self.screen.fill((255, 255, 255))
 
-            self.play()
+            if self.current_scene == "home":
+                self.home()
+            elif self.current_scene == "play":
+                self.play()
 
             self.clock.tick(60)
             pygame.display.update()
