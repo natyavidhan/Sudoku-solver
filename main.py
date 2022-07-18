@@ -89,6 +89,21 @@ class Game:
             self.check()
         self.draw_grid()
         self.draw_numbers()
+
+    def possible(self, cell, value):
+        x, y = cell.x, cell.y
+        for index, row in enumerate(self.grid):
+            if self.grid[y][index].value == value:
+                return False
+            if self.grid[index][x].value == value:
+                return False
+        x0 = x//3*3
+        y0 = y//3*3
+        for i in range(3):
+            for j in range(3):
+                if self.grid[y0+i][x0+j].value == value:
+                    return False
+        return True
     
     def home(self):
         self.screen.blit(self.home_bg, (0, 0))
