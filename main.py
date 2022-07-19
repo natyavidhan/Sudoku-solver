@@ -22,7 +22,6 @@ class Game:
         self.running = True
         self.current_scene = "home"
 
-        self.current = None
         self.key_map = []
         for i, x in enumerate(range(49, 58)):
             self.key_map.append([x, i+1])
@@ -105,18 +104,44 @@ class Game:
                     return False
         return True
     
+    def find_empty(self):
+        for row in self.grid:
+            for cell in row:
+                if cell.value == 0:
+                    return cell
+        return None
+
+    def auto(self):
+        cell = self.find_empty()
+        if cell:
+            for i in range(1, 10):
+                if self.possible(cell, i):
+                    cell.value = i
+                    self.screen.fill((255, 255, 255))
+                    self.draw_grid()
+                    self.draw_numbers()
+                    pygame.draw.rect(self.screen, (255, 0, 0), (cell.x*50, cell.y*50, 50, 50), 3)
+                    pygame.display.update()
+                    # pygame.time.delay(100)
+                    if self.auto():
+                        return True
+            cell.value = 0
+            return False
+        return True
+    
     def home(self):
         self.screen.blit(self.home_bg, (0, 0))
         play_btn_rect = pygame.Rect(130, 260, 190, 60)
         auto_rect = pygame.Rect(130, 330, 190, 60)
         if pygame.mouse.get_pressed()[0]:
             if play_btn_rect.collidepoint(pygame.mouse.get_pos()):
+                self.start_game()
                 self.current_scene = "play"
             if auto_rect.collidepoint(pygame.mouse.get_pos()):
+                self.start_game()
                 self.current_scene = "auto"
 
     def run(self):
-        self.start_game()
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -128,6 +153,10 @@ class Game:
                 self.home()
             elif self.current_scene == "play":
                 self.play()
+            elif self.current_scene == "auto":
+                self.auto()
+                self.draw_grid()
+                self.draw_numbers()
 
             self.clock.tick(60)
             pygame.display.update()
